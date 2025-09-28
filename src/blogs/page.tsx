@@ -1,0 +1,73 @@
+"use client";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+
+const placeholderBlogs = Array.from({ length: 6 }).map((_, i) => ({
+  id: i,
+  title: "Lorem Ipsum Blog",
+  image: "https://source.unsplash.com/random/400x300?sig=" + i,
+}));
+
+export default function BlogsPage() {
+  const blogRef = useRef(null);
+  const headingRef = useRef(null);
+  const isBlogsInView = useInView(blogRef, { amount: 0.2 });
+  const isHeadingInView = useInView(headingRef, { amount: 0.2 });
+
+  return (
+    <main id="blogs-section" className="max-w-6xl mx-auto py-16 px-4">
+      <motion.h1 
+        ref={headingRef}
+        initial={{ opacity: 0, y: -20 }}
+        animate={isHeadingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="text-3xl font-bold mb-10 text-center text-black"
+      >
+        My Blogs
+      </motion.h1>
+      <motion.div 
+        ref={blogRef}
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+        initial="hidden"
+        animate={isBlogsInView ? "visible" : "hidden"}
+        variants={{
+          visible: {
+            transition: {
+              staggerChildren: 0.3,
+              delayChildren: 0.2,
+            },
+          },
+        }}
+      >
+        {placeholderBlogs.map((blog, index) => (
+          <motion.div
+            key={blog.id}
+            variants={{
+              hidden: { 
+                opacity: 0, 
+                y: 20,
+              },
+              visible: { 
+                opacity: 1, 
+                y: 0,
+                transition: {
+                  duration: 0.5,
+                  ease: "easeOut"
+                }
+              }
+            }}
+            className="bg-white rounded-xl shadow p-4 flex flex-col items-center hover:shadow-lg cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <img src={blog.image} alt={blog.title} className="w-full h-48 object-cover rounded-lg mb-4" />
+            <h2 className="text-lg font-semibold text-gray-800 mb-2 w-full text-left">{blog.title}</h2>
+          </motion.div>
+        ))}
+      </motion.div>
+      <div className="mt-12 flex justify-center">
+        <a href="/blogs" className="text-lg font-semibold text-gray-700 hover:underline">Explore All Blogs...</a>
+      </div>
+    </main>
+  );
+}
