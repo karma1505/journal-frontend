@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 // Enhanced blog data with more fields
 const blogPosts = Array.from({ length: 6 }).map((_, i) => ({
@@ -74,11 +75,15 @@ export default function BlogListPage() {
               }}
               className="grid grid-cols-[240px_1fr_200px] gap-6 items-center hover:bg-gray-50 rounded-lg p-4 transition-colors cursor-pointer"
             >
-              <div className="w-full aspect-[4/3] overflow-hidden rounded-lg">
-                <img 
+              <div className="w-full aspect-[4/3] overflow-hidden rounded-lg relative">
+                <Image 
                   src={post.image} 
                   alt={post.title} 
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaUMk9SQHL3w6o9VcKrIozFfKzrLlBKvq6rWaxSivpNSq6/9k="
                 />
               </div>
               
