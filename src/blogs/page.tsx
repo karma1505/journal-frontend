@@ -1,19 +1,60 @@
 "use client";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import { API_ENDPOINTS } from "../config/api";
+import Link from "next/link";
 
-const placeholderBlogs = Array.from({ length: 6 }).map((_, i) => ({
-  id: i,
-  title: "Lorem Ipsum Blog",
-  image: "https://source.unsplash.com/random/400x300?sig=" + i,
-}));
+interface BlogPost {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  image_path?: string;
+}
 
 export default function BlogsPage() {
   const blogRef = useRef(null);
   const headingRef = useRef(null);
   const isBlogsInView = useInView(blogRef, { amount: 0.2 });
   const isHeadingInView = useInView(headingRef, { amount: 0.2 });
+  
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.ENTRIES);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch blog posts');
+        }
+        
+        const data = await response.json();
+        setBlogPosts(data);
+      } catch (err) {
+        console.error('Error fetching blog posts:', err);
+        setBlogPosts([]);
+      }
+    };
+
+    fetchBlogPosts();
+  }, []);
+
+  // Only show real blog posts, no empty spaces
+  const displayBlogs = blogPosts.slice(0, 6).map((post) => {
+    const imageUrl = post.image_path 
+      ? API_ENDPOINTS.IMAGE_URL(post.image_path) 
+      : `https://source.unsplash.com/random/400x300?sig=${post.id}`;
+    
+    return {
+      id: post.id,
+      title: post.title,
+      image: imageUrl,
+      isReal: true,
+      slug: post.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+    };
+  });
 
   return (
     <main id="blogs-section" className="max-w-6xl mx-auto py-16 px-4">
@@ -40,44 +81,47 @@ export default function BlogsPage() {
           },
         }}
       >
-        {placeholderBlogs.map((blog, index) => (
-          <motion.div
-            key={blog.id}
-            variants={{
-              hidden: { 
-                opacity: 0, 
-                y: 20,
-              },
-              visible: { 
-                opacity: 1, 
-                y: 0,
-                transition: {
-                  duration: 0.5,
-                  ease: "easeOut"
+        {displayBlogs.map((blog) => (
+          <Link key={blog.id} href={`/blogs/${blog.slug}`}>
+            <motion.div
+              variants={{
+                hidden: { 
+                  opacity: 0, 
+                  y: 20,
+                },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.5,
+                    ease: "easeOut"
+                  }
                 }
-              }
-            }}
-            className="bg-white rounded-xl shadow p-4 flex flex-col items-center hover:shadow-lg cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <div className="w-full h-48 relative rounded-lg mb-4 overflow-hidden">
-              <Image 
-                src={blog.image} 
-                alt={blog.title} 
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                className="object-cover"
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaUMk9SQHL3w6o9VcKrIozFfKzrLlBKvq6rWaxSivpNSq6/9k="
-              />
-            </div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-2 w-full text-left">{blog.title}</h2>
-          </motion.div>
+              }}
+              className="bg-white rounded-xl shadow p-4 flex flex-col items-center hover:shadow-lg cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="w-full h-48 relative rounded-lg mb-4 overflow-hidden">
+                <Image 
+                  src={blog.image} 
+                  alt={blog.title} 
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                  className="object-cover"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaUMk9SQHL3w6o9VcKrIozFfKzrLlBKvq6rWaxSivpNSq6/9k="
+                />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-800 mb-2 w-full text-left">{blog.title}</h2>
+            </motion.div>
+          </Link>
         ))}
       </motion.div>
       <div className="mt-12 flex justify-center">
-        <a href="/blogs" className="text-lg font-semibold text-gray-700 hover:underline">Explore All Blogs...</a>
+        <Link href="/blogs" className="text-lg font-semibold text-gray-700 hover:underline">
+          Explore All Blogs...
+        </Link>
       </div>
     </main>
   );

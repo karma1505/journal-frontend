@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
 import Image from "next/image";
+import { API_ENDPOINTS } from "../../config/api";
 
 export default function UploadBlog() {
   const [preview, setPreview] = useState<string | null>(null);
@@ -11,6 +12,8 @@ export default function UploadBlog() {
     content: "",
     publishDate: new Date().toISOString().split("T")[0],
   });
+  const [requestMethod, setRequestMethod] = useState("POST");
+  const [entryId, setEntryId] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,14 +38,78 @@ export default function UploadBlog() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    const blogData = {
-      ...formData,
-      image: preview,
-      slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-    };
-    console.log("Blog data to be sent:", blogData);
-    // TODO: Add your API call here
+    
+    try {
+      let url: string = API_ENDPOINTS.ENTRIES;
+      const method = requestMethod;
+      
+      // Add ID to URL for PATCH and DELETE
+      if ((requestMethod === 'PATCH' || requestMethod === 'DELETE') && entryId) {
+        url = API_ENDPOINTS.ENTRY_BY_ID(parseInt(entryId)) as string;
+      }
+      
+      // For DELETE, no body needed
+      if (requestMethod === 'DELETE') {
+        const response = await fetch(url, {
+          method: 'DELETE',
+        });
+        
+        if (response.ok) {
+          alert('Blog entry deleted successfully!');
+          resetForm();
+        } else {
+          const error = await response.json();
+          alert(`Error deleting blog entry: ${error.detail || 'Unknown error'}`);
+        }
+        return;
+      }
+      
+      // For POST and PATCH, create FormData
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('content', formData.content);
+      
+      // Add image file if selected
+      const fileInput = fileInputRef.current;
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        formDataToSend.append('image', fileInput.files[0]);
+      }
+      
+      // Send to backend API
+      const response = await fetch(url, {
+        method: method,
+        body: formDataToSend,
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`Blog entry ${requestMethod === 'POST' ? 'created' : 'updated'} successfully:`, result);
+        
+        resetForm();
+        alert(`Blog entry ${requestMethod === 'POST' ? 'created' : 'updated'} successfully!`);
+      } else {
+        const error = await response.json();
+        console.error(`Error ${requestMethod === 'POST' ? 'creating' : 'updating'} blog entry:`, error);
+        alert(`Error ${requestMethod === 'POST' ? 'creating' : 'updating'} blog entry. Please try again.`);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      alert('Network error. Please check if the backend server is running.');
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      content: "",
+      publishDate: new Date().toISOString().split("T")[0],
+    });
+    setPreview(null);
+    setFileName(null);
+    setEntryId("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -52,9 +119,43 @@ export default function UploadBlog() {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto py-16 px-4 text-gray-700"
     >
-      <h1 className="text-3xl font-bold mb-8 text-center">Create New Blog Post</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">Blog Management</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Request Method Dropdown */}
+        <div>
+          <label htmlFor="requestMethod" className="block text-sm font-medium mb-2">
+            Request Method
+          </label>
+          <select
+            id="requestMethod"
+            value={requestMethod}
+            onChange={(e) => setRequestMethod(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+          >
+            <option value="POST">POST - Create New Entry</option>
+            <option value="PATCH">PATCH - Update Existing Entry</option>
+            <option value="DELETE">DELETE - Delete Entry</option>
+          </select>
+        </div>
+
+        {/* Entry ID Input (for PATCH and DELETE) */}
+        {(requestMethod === 'PATCH' || requestMethod === 'DELETE') && (
+          <div>
+            <label htmlFor="entryId" className="block text-sm font-medium mb-2">
+              Entry ID
+            </label>
+            <input
+              type="number"
+              id="entryId"
+              required
+              value={entryId}
+              onChange={(e) => setEntryId(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+              placeholder="Enter the ID of the entry to update/delete"
+            />
+          </div>
+        )}
         {/* Title Input */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium mb-2">
@@ -175,9 +276,15 @@ export default function UploadBlog() {
           type="submit"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          className={`w-full py-3 rounded-lg font-medium transition-colors ${
+            requestMethod === 'DELETE' 
+              ? 'bg-red-600 hover:bg-red-700 text-white' 
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
         >
-          Publish Blog Post
+          {requestMethod === 'POST' && 'Create Blog Post'}
+          {requestMethod === 'PATCH' && 'Update Blog Post'}
+          {requestMethod === 'DELETE' && 'Delete Blog Post'}
         </motion.button>
       </form>
     </motion.main>

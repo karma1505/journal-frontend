@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="max-w-4xl mx-auto flex flex-col items-center">
         <p className="text-sm">&copy; {new Date().getFullYear()} My Developer Journal. All rights reserved.</p>
         <div className="mt-2 flex gap-4">
-          <a href="#" className="hover:underline">Contact Me</a>
+          <a href="tel:+919999098900" className="hover:underline">Contact Me: +91 9999098900</a>
         </div>
       </div>
     </footer>

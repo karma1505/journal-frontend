@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import ScrollDownButton from "../../components/ScrollDownButton";
 
 export default function HomePage() {
@@ -17,9 +18,11 @@ export default function HomePage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ type: "spring", stiffness: 120, damping: 20 }}
         >
-          <img
+          <Image
             src="/hero.jpg"
             alt="Hero"
+            width={384}
+            height={384}
             className="w-96 h-96 object-cover rounded-2xl shadow-2xl drop-shadow-lg"
           />
         </motion.div>

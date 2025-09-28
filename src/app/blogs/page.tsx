@@ -1,41 +1,90 @@
 "use client";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { API_ENDPOINTS } from "../../config/api";
 
-// Enhanced blog data with more fields
-const blogPosts = Array.from({ length: 6 }).map((_, i) => ({
-  id: i,
-  title: "Lorem Ipsum Blog Post " + (i + 1),
-  slug: "lorem-ipsum-blog-post-" + (i + 1),
-  excerpt: "This is a brief introduction to the blog post that shows the first fifty characters of the content...",
-  content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-  publishedDate: new Date(2025, 8, 28 - i).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }),
-  image: `https://source.unsplash.com/random/400x300?sig=${i}`,
-}));
+interface BlogPost {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  image_path?: string;
+}
 
 export default function BlogListPage() {
   const listRef = useRef(null);
-  const isInView = useInView(listRef, { amount: 0.1 });
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.ENTRIES);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch blog posts');
+        }
+        
+        const data = await response.json();
+        console.log('Fetched blog posts:', data);
+        setBlogPosts(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching blog posts:', err);
+      }
+    };
+
+    fetchBlogPosts();
+  }, []);
+
+
+  // Error state
+  if (error) {
+    return (
+      <main className="max-w-6xl mx-auto py-16 px-4">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Blog Posts</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </main>
+    );
+  }
+
 
   return (
-    <main className="max-w-6xl mx-auto py-16 px-4">
-      <div className="mb-12">
-        <motion.h1 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl font-bold text-center text-gray-900"
+    <div className="min-h-screen">
+      {/* Back to Home link in top-left corner */}
+      <div className="fixed top-4 left-4 z-10">
+        <Link 
+          href="/" 
+          className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-md text-gray-600 hover:text-gray-900 hover:bg-white transition-all duration-200 border border-gray-200"
         >
-          All Blog Posts
-        </motion.h1>
+          ← Back To Home
+        </Link>
       </div>
+
+      <main className="max-w-6xl mx-auto py-16 px-4">
+        <div className="mb-12">
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl font-bold text-center text-gray-900"
+          >
+            All Blog Posts
+          </motion.h1>
+        </div>
 
       {/* Header */}
       <div className="grid grid-cols-[240px_1fr_200px] gap-6 mb-6 px-4 text-sm font-semibold text-gray-500 border-b pb-2">
@@ -45,58 +94,59 @@ export default function BlogListPage() {
       </div>
 
       {/* Blog Posts List */}
-      <motion.div
-        ref={listRef}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        variants={{
-          visible: {
-            transition: {
-              staggerChildren: 0.1,
-            },
-          },
-        }}
-        className="space-y-8"
-      >
-        {blogPosts.map((post) => (
-          <Link href={`/blogs/${post.slug}`} key={post.id} className="block">
-            <motion.div
-              layout
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: {
-                    duration: 0.5,
-                    ease: "easeOut"
-                  }
-                }
-              }}
-              className="grid grid-cols-[240px_1fr_200px] gap-6 items-center hover:bg-gray-50 rounded-lg p-4 transition-colors cursor-pointer"
-            >
-              <div className="w-full aspect-[4/3] overflow-hidden rounded-lg relative">
-                <Image 
-                  src={post.image} 
-                  alt={post.title} 
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover hover:scale-105 transition-transform duration-300"
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaUMk9SQHL3w6o9VcKrIozFfKzrLlBKvq6rWaxSivpNSq6/9k="
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-gray-900">{post.title}</h2>
-                <p className="text-gray-600 line-clamp-2">{post.excerpt}</p>
-              </div>
+      <div className="space-y-8">
+        {blogPosts.map((post) => {
+          console.log('Rendering post:', post);
+          const slug = post.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          const excerpt = post.content.length > 100 ? post.content.substring(0, 100) + "..." : post.content;
+          const publishedDate = new Date(post.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+          const imageUrl = post.image_path 
+            ? API_ENDPOINTS.IMAGE_URL(post.image_path) 
+            : `https://source.unsplash.com/random/400x300?sig=${post.id}`;
 
-              <time className="text-gray-500">{post.publishedDate}</time>
-            </motion.div>
-          </Link>
-        ))}
-      </motion.div>
-    </main>
+          console.log('Post image_path:', post.image_path);
+          console.log('Generated Image URL:', imageUrl);
+          console.log('Title:', post.title);
+          console.log('Content:', post.content);
+
+          return (
+            <Link key={post.id} href={`/blogs/${slug}`} className="block">
+              <div className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors cursor-pointer">
+                <div className="flex gap-6">
+                  {/* Image */}
+                  <div className="w-48 h-36 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    {post.image_path ? (
+                      <Image 
+                        src={imageUrl} 
+                        alt={post.title} 
+                        width={192}
+                        height={144}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="text-gray-400 text-4xl">📝</div>
+                    )}
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start mb-2">
+                      <h2 className="text-xl font-semibold text-gray-900">{post.title}</h2>
+                      <time className="text-gray-500 text-sm">{publishedDate}</time>
+                    </div>
+                    <p className="text-gray-600">{excerpt}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+      </main>
+    </div>
   );
 }
