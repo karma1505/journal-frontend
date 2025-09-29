@@ -104,7 +104,7 @@ export default function BlogPost() {
       <div className="fixed top-4 left-4 z-10">
         <Link 
           href="/blogs" 
-          className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-md text-gray-600 hover:text-gray-900 hover:bg-white transition-all duration-200 border border-gray-200"
+          className="inline-flex items-center px-3 py-2 sm:px-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-md text-gray-600 hover:text-gray-900 hover:bg-white transition-all duration-200 border border-gray-200 text-sm sm:text-base mobile-button"
         >
           ← Back To All Blogs
         </Link>
@@ -119,7 +119,7 @@ export default function BlogPost() {
         <article>
           <motion.div
             layoutId={`blog-image-${blog.id}`}
-            className="w-full aspect-[16/9] overflow-hidden rounded-2xl mb-8"
+            className="w-full aspect-[16/9] overflow-hidden rounded-2xl mb-6 sm:mb-8"
           >
             {blog.image_path ? (
               <Image
@@ -131,7 +131,7 @@ export default function BlogPost() {
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                <div className="text-gray-400 text-6xl">📝</div>
+                <div className="text-gray-400 text-4xl sm:text-6xl">📝</div>
               </div>
             )}
           </motion.div>
@@ -141,13 +141,13 @@ export default function BlogPost() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-4xl font-bold text-gray-900">{blog.title}</h1>
-              <time className="text-gray-500">{publishedDate}</time>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-0">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight">{blog.title}</h1>
+              <time className="text-gray-500 text-sm sm:text-base">{publishedDate}</time>
             </div>
 
-            <div className="prose prose-lg max-w-none">
-              <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{blog.content}</p>
+            <div className="prose prose-sm sm:prose-lg max-w-none">
+              <p className="text-gray-600 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">{blog.content}</p>
             </div>
           </motion.div>
         </article>

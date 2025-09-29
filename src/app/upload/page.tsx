@@ -119,9 +119,9 @@ export default function UploadBlog() {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto py-16 px-4 text-gray-700"
     >
-      <h1 className="text-3xl font-bold mb-8 text-center">Blog Management</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center">Blog Management</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
         {/* Request Method Dropdown */}
         <div>
           <label htmlFor="requestMethod" className="block text-sm font-medium mb-2">
@@ -131,7 +131,7 @@ export default function UploadBlog() {
             id="requestMethod"
             value={requestMethod}
             onChange={(e) => setRequestMethod(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 mobile-button"
           >
             <option value="POST">POST - Create New Entry</option>
             <option value="PATCH">PATCH - Update Existing Entry</option>
@@ -151,7 +151,7 @@ export default function UploadBlog() {
               required
               value={entryId}
               onChange={(e) => setEntryId(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 mobile-button"
               placeholder="Enter the ID of the entry to update/delete"
             />
           </div>
@@ -167,7 +167,7 @@ export default function UploadBlog() {
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-500 mobile-button"
             placeholder="Enter your blog title..."
           />
         </div>
@@ -177,7 +177,7 @@ export default function UploadBlog() {
           <label className="block text-sm font-medium mb-2">
             Cover Image
           </label>
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors cursor-pointer"
+          <div className="mt-1 flex justify-center px-4 sm:px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors cursor-pointer"
                onClick={() => fileInputRef.current?.click()}>
             <div className="space-y-1 text-center w-full">
               {preview ? (
@@ -251,7 +251,7 @@ export default function UploadBlog() {
             id="publishDate"
             value={formData.publishDate}
             onChange={(e) => setFormData({ ...formData, publishDate: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 mobile-button"
           />
         </div>
 
@@ -265,8 +265,8 @@ export default function UploadBlog() {
             required
             value={formData.content}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            rows={10}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y text-gray-700 placeholder-gray-500"
+            rows={8}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y text-gray-700 placeholder-gray-500 mobile-button"
             placeholder="Write your blog content here..."
           />
         </div>
@@ -276,7 +276,7 @@ export default function UploadBlog() {
           type="submit"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className={`w-full py-3 rounded-lg font-medium transition-colors ${
+          className={`w-full py-4 rounded-lg font-medium transition-colors mobile-button ${
             requestMethod === 'DELETE' 
               ? 'bg-red-600 hover:bg-red-700 text-white' 
               : 'bg-blue-600 hover:bg-blue-700 text-white'

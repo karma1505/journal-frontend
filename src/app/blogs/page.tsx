@@ -68,33 +68,33 @@ export default function BlogListPage() {
       <div className="fixed top-4 left-4 z-10">
         <Link 
           href="/" 
-          className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-md text-gray-600 hover:text-gray-900 hover:bg-white transition-all duration-200 border border-gray-200"
+          className="inline-flex items-center px-3 py-2 sm:px-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-md text-gray-600 hover:text-gray-900 hover:bg-white transition-all duration-200 border border-gray-200 text-sm sm:text-base mobile-button"
         >
           ← Back To Home
         </Link>
       </div>
 
       <main className="max-w-6xl mx-auto py-16 px-4">
-        <div className="mb-12">
+        <div className="mb-8 sm:mb-12">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-3xl font-bold text-center text-gray-900"
+            className="text-2xl sm:text-3xl font-bold text-center text-gray-900"
           >
             All Blog Posts
           </motion.h1>
         </div>
 
-      {/* Header */}
-      <div className="grid grid-cols-[240px_1fr_200px] gap-6 mb-6 px-4 text-sm font-semibold text-gray-500 border-b pb-2">
+      {/* Header - Hidden on mobile, shown on desktop */}
+      <div className="hidden md:grid grid-cols-[240px_1fr_200px] gap-6 mb-6 px-4 text-sm font-semibold text-gray-500 border-b pb-2">
         <div>Image</div>
         <div>Title & Description</div>
         <div>Published Date</div>
       </div>
 
       {/* Blog Posts List */}
-      <div className="space-y-8">
+      <div className="space-y-4 sm:space-y-8">
         {blogPosts.map((post) => {
           console.log('Rendering post:', post);
           const slug = post.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -115,8 +115,31 @@ export default function BlogListPage() {
 
           return (
             <Link key={post.id} href={`/blogs/${slug}`} className="block">
-              <div className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors cursor-pointer">
-                <div className="flex gap-6">
+              <div className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:bg-gray-50 transition-colors cursor-pointer">
+                {/* Mobile Layout */}
+                <div className="flex flex-col md:hidden gap-4">
+                  <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    {post.image_path ? (
+                      <Image 
+                        src={imageUrl} 
+                        alt={post.title} 
+                        width={400}
+                        height={192}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="text-gray-400 text-4xl">📝</div>
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h2>
+                    <time className="text-gray-500 text-sm block mb-2">{publishedDate}</time>
+                    <p className="text-gray-600 text-sm">{excerpt}</p>
+                  </div>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden md:flex gap-6">
                   {/* Image */}
                   <div className="w-48 h-36 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                     {post.image_path ? (

@@ -26,3 +26,33 @@ body {
   color: var(--foreground);
   font-family: 'Fira Code', monospace;
 }
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Ensure text is readable on mobile */
+  .text-responsive {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  /* Mobile-friendly spacing */
+  .mobile-padding {
+    padding: 1rem;
+  }
+  
+  /* Mobile navigation adjustments */
+  .mobile-nav {
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Mobile-friendly buttons */
+  .mobile-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
